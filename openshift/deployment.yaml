@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: student-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: student-management
+  template:
+    metadata:
+      labels:
+        app: student-management
+    spec:
+      containers:
+      - name: app
+        image: image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/student-management:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: PORT
+          value: "8080"
+        - name: SQLITE_DB
+          value: "/data/students.db"
+        volumeMounts:
+        - name: students-data
+          mountPath: /data
+      volumes:
+      - name: students-data
+        persistentVolumeClaim:
+          claimName: students-data-pvc

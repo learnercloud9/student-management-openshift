@@ -1,0 +1,12 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: student-management
+spec:
+  to:
+    kind: Service
+    name: student-management
+  port:
+    targetPort: 8080
+  tls:
+    termination: edge
