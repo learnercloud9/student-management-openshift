@@ -1,9 +1,11 @@
 FROM python:3.11-slim
+
 WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+
+COPY requirements.txt requirements.txt
+RUN pip install -r requirements.txt
+
 COPY . .
-RUN chmod -R 755 /app
-ENV PORT 8080
-EXPOSE 8080
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app", "--workers", "2", "--threads", "4"]
+
+# Run the Flask app with gunicorn
+CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]

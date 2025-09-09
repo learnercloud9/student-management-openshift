@@ -4,25 +4,27 @@ import os
 
 app = Flask(__name__)
 
-DB_FILE = os.path.join(os.getcwd(), "students.db")
+# Use /tmp so SQLite can write in OpenShift container
+DB_FILE = "/tmp/students.db"
 
 def init_db():
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
-    cursor.execute('''CREATE TABLE IF NOT EXISTS students (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        name TEXT NOT NULL,
-                        roll_number TEXT UNIQUE NOT NULL,
-                        gender TEXT,
-                        course TEXT,
-                        joining_year INTEGER
-                    )''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS students (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            number TEXT NOT NULL,
+            male TEXT,
+            course TEXT,
+            joining_year TEXT,
+            gender TEXT
+        )
+    ''')
     conn.commit()
     conn.close()
 
-init_db()
-
-@app.route("/")
+@app.route('/')
 def index():
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
@@ -31,21 +33,23 @@ def index():
     conn.close()
     return render_template("index.html", students=students)
 
-@app.route("/add", methods=["POST"])
+@app.route('/add', methods=['POST'])
 def add_student():
-    name = request.form["name"]
-    roll_number = request.form["roll_number"]
-    gender = request.form["gender"]
-    course = request.form["course"]
-    joining_year = request.form["joining_year"]
+    name = request.form['name']
+    number = request.form['number']
+    male = request.form['male']
+    course = request.form['course']
+    joining_year = request.form['joining_year']
+    gender = request.form['gender']
 
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO students (name, roll_number, gender, course, joining_year) VALUES (?, ?, ?, ?, ?)",
-                (name, roll_number, gender, course, joining_year))
+    cursor.execute("INSERT INTO students (name, number, male, course, joining_year, gender) VALUES (?, ?, ?, ?, ?, ?)",
+                   (name, number, male, course, joining_year, gender))
     conn.commit()
     conn.close()
-    return redirect("/")
+    return redirect('/')
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+if __name__ == '__main__':
+    init_db()
+    app.run(host="0.0.0.0", port=8080)
