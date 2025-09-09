@@ -4,7 +4,7 @@ import os
 
 app = Flask(__name__)
 
-DB_FILE = os.environ.get("SQLITE_DB", "students.db")
+DB_FILE = os.path.join(os.getcwd(), "students.db")
 
 def init_db():
     conn = sqlite3.connect(DB_FILE)
